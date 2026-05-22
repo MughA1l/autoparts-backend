@@ -15,9 +15,9 @@ const createTransporter = () => {
 const sendOTPEmail = async (to, name, otp) => {
   const transporter = createTransporter();
   const mailOptions = {
-    from: process.env.EMAIL_FROM || 'AutoParts Pro <noreply@autoparts.com>',
+    from: process.env.EMAIL_FROM || 'Gull & Sons Auto Parts <noreply@gullandsonsautoparts.com>',
     to,
-    subject: 'Password Reset OTP - AutoParts Pro',
+    subject: 'Password Reset OTP - Gull & Sons Auto Parts',
     html: `
       <!DOCTYPE html>
       <html>
@@ -46,7 +46,7 @@ const sendOTPEmail = async (to, name, otp) => {
           </div>
           <p class="expiry">⏰ This OTP is valid for <strong>10 minutes</strong> only.</p>
           <p>If you didn't request this, please ignore this email. Your password will remain unchanged.</p>
-          <div class="footer">© 2024 AutoParts Pro. All rights reserved.</div>
+          <div class="footer">© 2024 Gull & Sons Auto Parts. All rights reserved.</div>
         </div>
       </body>
       </html>
@@ -72,9 +72,9 @@ const sendOrderConfirmationEmail = async (to, name, order) => {
   `).join('');
 
   const mailOptions = {
-    from: process.env.EMAIL_FROM || 'AutoParts Pro <noreply@autoparts.com>',
+    from: process.env.EMAIL_FROM || 'Gull & Sons Auto Parts <noreply@gullandsonsautoparts.com>',
     to,
-    subject: `Order Confirmed #${order.orderNumber} - AutoParts Pro`,
+    subject: `Order Confirmed #${order.orderNumber} - Gull & Sons Auto Parts`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -104,7 +104,7 @@ const sendOrderConfirmationEmail = async (to, name, order) => {
             <tr class="total-row"><td colspan="2">Total Amount</td><td style="text-align:right;">Rs. ${order.totalAmount.toLocaleString()}</td></tr>
           </table>
           <p style="color:#94a3b8;margin-top:20px;">Payment Method: <strong>Cash on Delivery (COD)</strong></p>
-          <div class="footer">© 2024 AutoParts Pro. Thank you for shopping with us!</div>
+          <div class="footer">© 2024 Gull & Sons Auto Parts. Thank you for shopping with us!</div>
         </div>
       </body>
       </html>

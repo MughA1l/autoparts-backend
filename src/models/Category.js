@@ -11,7 +11,6 @@ const categorySchema = new mongoose.Schema({
   },
   slug: { type: String, unique: true },
   description: { type: String, maxlength: [300, 'Description cannot exceed 300 characters'] },
-  image: { type: String, default: '' },
   icon: { type: String, default: '🔧' },
   parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default: null },
   isActive: { type: Boolean, default: true },

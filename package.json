@@ -1,7 +1,7 @@
 {
   "name": "autoparts-backend",
   "version": "1.0.0",
-  "description": "AutoParts Pro E-Commerce Backend API",
+  "description": "Gull & Sons Auto Parts E-Commerce Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

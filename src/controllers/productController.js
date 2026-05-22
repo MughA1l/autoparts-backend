@@ -211,6 +211,7 @@ const getVehicleOptions = asyncHandler(async (req, res) => {
 // Admin CRUD
 const createProduct = asyncHandler(async (req, res) => {
   const data = req.body;
+  if (data.deliveryCharge) data.deliveryCharge = Number(data.deliveryCharge) || 0;
   if (req.files && req.files.length > 0) {
     data.images = req.files.map((f) => `/uploads/products/${f.filename}`);
   }
@@ -224,9 +225,18 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const data = req.body;
-  if (req.files && req.files.length > 0) {
-    data.images = req.files.map((f) => `/uploads/products/${f.filename}`);
+  // existingImages (from admin) may be sent as JSON string
+  let existingImgs = [];
+  if (data.existingImages) {
+    try {
+      existingImgs = typeof data.existingImages === 'string' ? JSON.parse(data.existingImages) : data.existingImages;
+    } catch (e) {
+      existingImgs = [];
+    }
   }
+  const newImgs = req.files && req.files.length > 0 ? req.files.map((f) => `/uploads/products/${f.filename}`) : [];
+  data.images = [...existingImgs, ...newImgs];
+  if (data.deliveryCharge) data.deliveryCharge = Number(data.deliveryCharge) || 0;
   if (typeof data.fitments === 'string') data.fitments = JSON.parse(data.fitments);
   if (typeof data.specifications === 'string') data.specifications = JSON.parse(data.specifications);
 

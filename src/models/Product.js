@@ -52,6 +52,8 @@ const productSchema = new mongoose.Schema({
     default: 0,
   },
   images: [{ type: String }],
+  deliveryCharge: { type: Number, default: 0 },
+  videoUrl: { type: String, default: '' },
   fitments: [fitmentSchema],
   specifications: [{
     key: String,
