@@ -89,6 +89,11 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Gull & Sons Auto Parts API is running!', timestamp: new Date() });
 });
 
+// Root endpoint for platform checks
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'Gull & Sons Auto Parts API is running!' });
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
