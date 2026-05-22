@@ -98,19 +98,21 @@ app.use('*', (req, res) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log(`\n🚀 Gull & Sons Auto Parts Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  console.log(`📡 API URL: http://localhost:${PORT}/api`);
-});
+if (require.main === module && !process.env.VERCEL) {
+  const server = app.listen(PORT, () => {
+    console.log(`\n🚀 Gull & Sons Auto Parts Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    console.log(`📡 API URL: http://localhost:${PORT}/api`);
+  });
 
-// Initialize Socket.io
-const { initializeSocket } = require('./src/socket');
-initializeSocket(server);
+  // Initialize Socket.io only for the standalone server
+  const { initializeSocket } = require('./src/socket');
+  initializeSocket(server);
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Rejection:', err.message);
-  server.close(() => process.exit(1));
-});
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err) => {
+    console.error('❌ Unhandled Rejection:', err.message);
+    server.close(() => process.exit(1));
+  });
+}
 
 module.exports = app;
