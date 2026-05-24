@@ -36,27 +36,42 @@ const app = express();
 // Security Middlewares
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-const allowedOrigins = new Set(
-  [
-    process.env.CLIENT_URL,
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'https://gul-and-sons-auto-parts-frontend.vercel.app',
-  ].filter(Boolean)
-);
+// Build allowed origins list and a robust checker
+const allowedOrigins = new Set([
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://gul-and-sons-auto-parts-frontend.vercel.app',
+].filter(Boolean));
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.has(origin) || origin.endsWith('.vercel.app')) {
-      return callback(null, true);
-    }
-    return callback(new Error(`CORS blocked for origin: ${origin}`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // allow non-browser requests (curl, server-to-server)
+  if (allowedOrigins.has(origin)) return true;
+  try {
+    const hostname = new URL(origin).hostname;
+    if (hostname && hostname.endsWith('.vercel.app')) return true;
+  } catch (e) {
+    // ignore malformed origin
+  }
+  return false;
+};
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (isAllowedOrigin(origin)) {
+    // Echo the request origin when present so browser receives an appropriate ACAO
+    if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+  // Let preflight requests short-circuit
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
+// Keep the cors middleware for compatibility with some libs
+app.use(cors({ origin: isAllowedOrigin, credentials: true }));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -119,6 +134,11 @@ app.use('*', (req, res) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
+// Warn if essential environment variables are missing (helps diagnose deploy issues)
+const requiredEnvs = ['MONGO_URI', 'JWT_SECRET'];
+requiredEnvs.forEach((k) => {
+  if (!process.env[k]) console.warn(`WARN: environment variable ${k} is not set`);
+});
 if (require.main === module && !process.env.VERCEL) {
   const server = app.listen(PORT, () => {
     console.log(`\n🚀 Gull & Sons Auto Parts Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
