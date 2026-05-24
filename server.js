@@ -74,8 +74,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Keep the cors middleware for compatibility with some libs
-app.use(cors({ origin: isAllowedOrigin, credentials: true }));
+// Use a simple cors config since we already handled it above with headers
+app.use(cors({ origin: true, credentials: true }));
 
 // Rate limiting
 const limiter = rateLimit({
