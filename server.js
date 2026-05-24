@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -39,6 +40,25 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 // Initialize DB connection (async - don't block)
 console.log('--- DB Initialization Started ---');
 connectDB().then(() => console.log('--- DB Initialization Done ---')).catch(e => console.error('DB Init failed', e));
+
+// Middleware to ensure DB connection is ready before processing requests
+app.use(async (req, res, next) => {
+  // Skip DB check for health/ping
+  if (req.path === '/api/health' || req.path === '/api/ping') return next();
+  
+  try {
+    const conn = await connectDB();
+    if (!conn || mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ 
+        success: false, 
+        message: 'Database connection is not ready. Please try again in a few seconds.' 
+      });
+    }
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Database connection error' });
+  }
+});
 
 // CORS config
 const allowedOrigins = new Set([

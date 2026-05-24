@@ -14,6 +14,9 @@ const connectDB = async () => {
 
   if (!globalForMongoose.__mongoosePromise) {
     console.log('📡 Starting new MongoDB connection attempt...');
+    // Disable buffering when connection is not ready to avoid long hangs
+    mongoose.set('bufferCommands', false);
+    
     globalForMongoose.__mongoosePromise = mongoose
       .connect(process.env.MONGO_URI, {
         serverSelectionTimeoutMS: 5000,
