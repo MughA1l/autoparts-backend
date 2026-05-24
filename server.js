@@ -29,9 +29,11 @@ const reviewRoutes = require('./src/routes/reviewRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
 
 // Connect to database
-connectDB();
+console.log('--- Initializing Backend Server ---');
+connectDB().then(() => console.log('--- DB Initialization Attempt Complete ---'));
 
 const app = express();
+console.log('--- Express App Created ---');
 
 // Security Middlewares
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
