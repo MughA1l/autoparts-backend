@@ -64,11 +64,12 @@ const getProducts = asyncHandler(async (req, res) => {
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
-  require('fs').appendFileSync('product_query.log', JSON.stringify({
+  // Use console.log instead of file system for logging on serverless platforms like Vercel
+  console.log('Product Query:', JSON.stringify({
     time: new Date(),
     queryFromFrontend: req.query,
     mongoQuery: query
-  }) + '\\n');
+  }));
 
   const [products, total] = await Promise.all([
     Product.find(query)
