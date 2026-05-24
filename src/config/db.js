@@ -14,7 +14,10 @@ const connectDB = async () => {
 
   if (!globalForMongoose.__mongoosePromise) {
     globalForMongoose.__mongoosePromise = mongoose
-      .connect(process.env.MONGO_URI)
+      .connect(process.env.MONGO_URI, {
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
+      })
       .then((conn) => {
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
         return conn;
