@@ -16,6 +16,11 @@ dotenv.config();
 const connectDB = require('./src/config/db');
 const errorHandler = require('./src/middlewares/errorHandler');
 
+const app = express();
+
+// Ultra-fast ping before anything else
+app.get('/api/ping', (req, res) => res.send('pong'));
+
 // Route imports
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
@@ -28,17 +33,14 @@ const adminRoutes = require('./src/routes/adminRoutes');
 const reviewRoutes = require('./src/routes/reviewRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
 
-// Connect to database
-console.log('--- Initializing Backend Server ---');
-connectDB().then(() => console.log('--- DB Initialization Attempt Complete ---'));
-
-const app = express();
-console.log('--- Express App Created ---');
-
 // Security Middlewares
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-// Build allowed origins list and a robust checker
+// Initialize DB connection (async - don't block)
+console.log('--- DB Initialization Started ---');
+connectDB().then(() => console.log('--- DB Initialization Done ---')).catch(e => console.error('DB Init failed', e));
+
+// CORS config
 const allowedOrigins = new Set([
   process.env.CLIENT_URL,
   'http://localhost:5173',
