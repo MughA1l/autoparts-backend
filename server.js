@@ -35,8 +35,24 @@ const app = express();
 
 // Security Middlewares
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+const allowedOrigins = new Set(
+  [
+    process.env.CLIENT_URL,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://gul-and-sons-auto-parts-frontend.vercel.app',
+  ].filter(Boolean)
+);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin) || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
