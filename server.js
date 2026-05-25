@@ -85,12 +85,16 @@ app.use((req, res, next) => {
   if (isAllowedOrigin(origin)) {
     // Echo the request origin when present so browser receives an appropriate ACAO
     if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type,Authorization');
+
+    // Let allowed preflight requests short-circuit
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
   }
-  // Let preflight requests short-circuit
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
+
+  // For non-allowed origins, let the normal CORS middleware and route handlers proceed.
   next();
 });
 
